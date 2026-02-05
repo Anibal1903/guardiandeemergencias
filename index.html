@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Guardián de Emergencias - Prevención</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: #f4f4f9; color: #333; }
+        header { background: #d32f2f; color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        .container { padding: 20px; max-width: 1200px; margin: auto; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .card h3 { color: #d32f2f; margin-top: 0; }
+        
+        .simulator { border-top: 5px solid #d32f2f; }
+        .btn-opcion { background: #f8f9fa; color: #333; border: 1px solid #ddd; padding: 12px; margin: 8px 0; display: block; width: 100%; text-align: left; border-radius: 5px; cursor: pointer; font-size: 16px; transition: 0.3s; }
+        .btn-opcion:hover { background: #e9ecef; border-color: #d32f2f; }
+        
+        .info-card { border-top: 5px solid #2196F3; }
+        .info-card ul { text-align: left; padding-left: 20px; }
+
+        .stats { background: #333; color: white; padding: 15px; border-radius: 8px; margin-top: 20px; }
+        .progress-bar { background: #555; border-radius: 10px; height: 15px; width: 100%; margin: 10px 0; overflow: hidden; }
+        .progress-fill { background: #4caf50; height: 100%; width: 0%; transition: width 0.5s; }
+        
+        #feedback { font-weight: bold; margin-top: 15px; padding: 15px; border-radius: 5px; display: none; }
+        button.main-btn { background: #d32f2f; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        
+        .vidas-container { font-size: 24px; color: #ff5252; }
+        #timer-display { font-weight: bold; color: #ffeb3b; background: rgba(0,0,0,0.2); padding: 5px 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    
+<header>
+        <h1>Guardián de Emergencias🔥</h1>
+     <div id="pantalla-inicio" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+     <h1 style="color: white; margin-bottom: 20px;">Simulador de Incendios</h1>
+     <button id="btn-comenzar" onclick="iniciarSimulacro()" style="padding: 15px 30px; font-size: 20px; cursor: pointer; background: #e63946; color: white; border: none; border-radius: 5px;">
+        COMENZAR SIMULACRO
+     </button>
+    </div>
+
+    <div>
+        <span id="txt-nivel">Nivel 1: Hogar</span> | 
+        <span id="vidas-display" class="vidas-container">❤️❤️❤️</span> |
+        <span id="timer-display">⏱️ 15s</span> |
+        <strong>Puntos: <span id="txt-puntos">0</span></strong>
+    </div>
+</header>
+
+<div class="container">
+    <div class="card simulator" id="simulador">
+        <h3 id="scenario-title">🔥 Simulacro Interactivo</h3>
+        <p id="scenario-question" style="font-size: 18px; font-weight: bold;">Cargando escenario...</p>
+        <div id="options-container"></div>
+        <div id="feedback"></div>
+    </div>
+
+    <div class="grid">
+        <div class="card info-card">
+            <h3>🏠 Hogar</h3>
+            <ul>
+                <li>Instala detectores de humo.</li>
+                <li>No dejes velas solas.</li>
+            </ul>
+            <button class="main-btn" onclick="seleccionarAmbito(1)">Jugar Nivel Hogar</button>
+        </div>
+        <div class="card info-card" style="border-top-color: #4caf50;">
+            <h3>🏫 Escuela</h3>
+            <ul>
+                <li>Conoce las rutas de evacuación.</li>
+                <li>Informa cables pelados.</li>
+            </ul>
+            <button class="main-btn" onclick="seleccionarAmbito(2)">Jugar Nivel Escuela</button>
+        </div>
+        <div class="card info-card" style="border-top-color: #ff5722;">
+            <h3>🏢 Empresa</h3>
+            <ul>
+                <li>Mantén extintores despejados.</li>
+                <li>No sobrecargues enchufes.</li>
+            </ul>
+            <button class="main-btn" onclick="seleccionarAmbito(3)">Jugar Nivel Empresa</button>
+        </div>
+    </div>
+
+    <div class="stats">
+        <h4>Tu Progreso Global</h4>
+        <div class="progress-bar"><div class="progress-fill" id="bar-fill"></div></div>
+        <p id="progress-text">¡Completa escenarios para subir de rango!</p>
+    </div>
+
+    <div id="pantalla-certificado" style="display:none; text-align:center; padding:50px; border:10px double #d32f2f; background:white; margin-top:20px; border-radius: 15px;">
+        <h1 style="color:#d32f2f;">📜 DIPLOMA DE HONOR</h1>
+        <p style="font-size:20px;">Se certifica que:</p>
+        <h2 id="diploma-nombre" style="background: #ffeb3b; display: inline-block; padding: 10px; min-width: 200px;">CADETE</h2>
+        <p style="font-size:20px;">ha completado con éxito el entrenamiento de prevención.</p>
+        <p>Otorgado el: <strong id="diploma-fecha">--/--/----</strong></p>
+       <br>
+       <button class="main-btn" onclick="window.print()">🖨️ Imprimir Diploma</button>
+       <button class="main-btn" style="background:#333;" onclick="location.reload()">Volver a Jugar</button>
+    </div>
+    <style>
+    #modal-nuevo-diseno {
+        display: flex; 
+        position: fixed; 
+        top: 0; left: 0; 
+        width: 100%; height: 100%; 
+        background: rgba(0,0,0,0.85); 
+        z-index: 99999 !important; /* Prioridad máxima */
+        align-items: center; 
+        justify-content: center; 
+        backdrop-filter: blur(10px);
+    }
+    .modal-contenido-fire {
+        background: white; 
+        padding: 40px; 
+        border-radius: 30px; 
+        max-width: 400px; 
+        text-align: center; 
+        border: 8px solid #d32f2f; 
+        position: relative; 
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+    .casco-container {
+        position: absolute; 
+        top: -55px; left: 50%; 
+        transform: translateX(-50%); 
+        background: #d32f2f; 
+        width: 90px; height: 90px; 
+        border-radius: 50%; 
+        display: flex; align-items: center; justify-content: center; 
+        font-size: 45px; border: 6px solid white;
+    }
+</style>
+
+<div id="modal-nuevo-diseno">
+    <div class="modal-contenido-fire">
+        <div class="casco-container">👨‍🚒</div>
+        <h2 style="color:#d32f2f; margin-top:25px; font-family: sans-serif; font-weight: 900;">🚨 LECCIÓN DEL DÍA</h2>
+        <hr style="border: 0; border-top: 2px solid #eee; margin: 15px 0;">
+        <p id="texto-consejo-ia" style="font-size: 1.2rem; color: #333; line-height: 1.6; font-style: italic;">
+            Cargando sabiduría...
+        </p>
+        <button class="main-btn" onclick="document.getElementById('modal-nuevo-diseno').style.display='none'; document.querySelector('.container').style.display='block';" 
+                style="background: #d32f2f; color: white; border: none; padding: 12px 35px; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 15px;">
+            ¡ENTENDIDO, CAPITÁN!
+        </button>
+    </div>
+</div>
+
+<script>
+    // BASE DE DATOS COMPLETA
+    const baseDeDatosEscenarios = [
+        // NIVEL 1 - HOGAR
+        { id: 1, nivel: 1, ambito: "Hogar", escenario: "Se produce un pequeño incendio en una sartén con aceite.", opciones: ["Echar agua inmediatamente", "Tapar la sartén y apagar el fuego", "Mover la sartén al patio"], correcta: 1 },
+        { id: 2, nivel: 1, ambito: "Hogar", escenario: "Un enchufe comienza a largar chispas.", opciones: ["Desenchufar cortando la corriente", "Echarle agua", "Cubrirlo con una tela"], correcta: 0 },
+        { id: 3, nivel: 1, ambito: "Hogar", escenario: "Hay humo saliendo del horno eléctrico.", opciones: ["Abrir el horno inmediatamente", "Desenchufar y mantener cerrado", "Dejar que siga en funcionamiento"], correcta: 1 },
+       { id: 4, nivel: 1, ambito: "Hogar", escenario: "Una vela encendida queda cerca de una cortina.", opciones: ["Alejar la cortina o apagar la vela", "Dejarla y vigilar", "Abrir la ventana"], correcta: 0 },
+       { id: 5, nivel: 1, ambito: "Hogar", escenario: "Se incendia un cesto de basura pequeño.", opciones: ["Echar agua si no es eléctrico", "Soplar fuerte", "Ignorarlo"], correcta: 0},
+       { id: 6, nivel: 1, ambito: "Hogar", escenario: "Detectás olor a gas en la cocina.", opciones: ["Encender la luz", "Ventilar y cerrar la llave de gas", "Usar el celular"], correcta: 1 },
+       { id: 7, nivel: 1, ambito: "Hogar", escenario: "Un calefactor está muy cerca de muebles.", opciones: ["Apagarlo y alejarlo", "Bajar la temperatura","Nada, es normal"], correcta: 0 },
+       { id: 8, nivel: 1, ambito: "Hogar", escenario: "Un niño juega con fósforos.", opciones: ["Quitarlos y explicar el riesgo", "Dejarlo aprender", "Ignorar"], correcta: 0 },
+       { id: 9, nivel: 1, ambito: "Hogar", escenario: "Se corta la luz y usás velas.", opciones: ["Colocarlas sobre materiales inflamables", "Ubicarlas en lugares seguros", "Dejarlas solas"], correcta: 1 },
+       { id: 10, nivel: 1, ambito: "Hogar", escenario: "Una estufa a gas no tiene ventilación.", opciones: ["Apagarla y ventilar", "Usarla igual", "Usarla y ventilar"], correcta: 0 },
+       { id: 11, nivel: 1, ambito: "Hogar", escenario: "Hay acumulación de cables sobrecargados.", opciones: ["Distribuir la carga", "Usar una zapatilla más", "Ignorarlo"], correcta: 0 },
+       { id: 12, nivel: 1, ambito: "Hogar", escenario: "Un aerosol se calienta cerca del fuego.", opciones: ["Alejarlo del calor", "Pincharlo", "Dejarlo"], correcta: 0 },
+       { id: 13, nivel: 1, ambito: "Hogar", escenario: "Una plancha queda enchufada.", opciones: ["Desenchufarla y dejarla en lugar seguro", "Desenchufarla y guardarla", "Dejarla enchufada"], correcta: 0 },
+       { id: 14, nivel: 1, ambito: "Hogar", escenario: "Se prende fuego un papel.", opciones: ["Apagarlo rápidamente", "Dejarlo consumir", "Soplar"], correcta: 0 },
+       { id: 15, nivel: 1, ambito: "Hogar", escenario: "Una salida está bloqueada.", opciones: ["Liberarla", "Recordarla", "Ignorar"], correcta: 0 },
+       { id: 16, nivel: 1, ambito: "Hogar", escenario: "Una parrilla se usa dentro de la casa.", opciones: ["Apagarla y sacarla", "Abrir ventanas","Continuar sin hacer nada"], correcta: 0 },
+       { id: 17, nivel: 1, ambito: "Hogar", escenario: "Un cargador se calienta demasiado.", opciones: ["Desenchufarlo", "Ponerlo bajo una almohada", "Seguir cargando"], correcta: 0 },
+       { id: 18, nivel: 1, ambito: "Hogar", escenario: "Una chimenea no fue limpiada.", opciones: ["Limpiarla antes de usar", "Usarla igual", "Cerrar el tiraje"], correcta: 0 },
+       { id: 19, nivel: 1, ambito: "Hogar", escenario: "Una frazada toca una estufa.", opciones: ["Alejarla", "Mojarla", "Ignorar"], correcta: 0 },
+       { id: 20, nivel: 1, ambito: "Hogar", escenario: "No hay matafuego en casa.", opciones: ["Adquirir uno", "Usar agua siempre", "No es necesario"], correcta: 0 },
+        
+        // NIVEL 2 - ESCUELA
+        { id: 21, nivel: 2, ambito: "Escuela", escenario: "Se activa la alarma de incendio durante clase.", opciones: ["Salir ordenadamente", "Correr", "Esconderse"], correcta: 0 },
+        { id: 22, nivel: 2, ambito: "Escuela", escenario: "Un alumno detecta humo en el pasillo.", opciones: ["Avisar inmediatamente a un adulto", "Abrir ventanas", "Ignorarlo"], correcta: 0 },
+        { id: 23, nivel: 2, ambito: "Escuela", escenario: "Una salida de emergencia está bloqueada.", opciones: ["Informar a la dirección", "Usarla igual", "Esperar una emergencia"], correcta: 0 },
+        { id: 24, nivel: 2, ambito: "Escuela", escenario: "Un matafuego no está señalizado.", opciones: ["Solicitar señalización", "Moverlo de lugar", "Ignorarlo"], correcta: 0 },
+        { id: 25, nivel: 2, ambito: "Escuela", escenario: "Durante un simulacro un alumno corre.", opciones: ["Indicarle que camine", "Seguirlo", "Gritarle"], correcta: 0},
+        { id: 26, nivel: 2, ambito: "Escuela", escenario: "Se produce un principio de incendio en laboratorio.", opciones: ["Evacuar y avisar", "Intentar apagar sin capacitación", "Cerrar el aula"], correcta: 0 },
+        { id: 27, nivel: 2, ambito: "Escuela", escenario: "Cables eléctricos están deteriorados.", opciones: ["Informar y no usarlos", "Usarlos con cuidado", "Cubrirlos con cinta"], correcta: 0},
+        { id: 28, nivel: 2, ambito: "Escuela", escenario: "Un alumno juega con un encendedor.", opciones: ["Retirarlo y avisar", "Reírse", "Ignorarlo"], correcta: 0 },
+        { id: 29, nivel: 2, ambito: "Escuela", escenario: "Se corta la luz en horario escolar.", opciones: ["Mantener la calma", "Correr hacia la salida", "Encender fuego"], correcta: 0 },
+        { id: 30, nivel: 2, ambito: "Escuela", escenario: "Un docente desconoce el plan de evacuación.", opciones: ["Capacitarse", "Improvisar", "Ignorarlo"], correcta: 0 },
+        { id: 31, nivel: 2, ambito: "Escuela", escenario: "Material inflamable mal almacenado.", opciones: ["Reubicarlo correctamente", "Alejar alumnos", "Dejarlo"], correcta: 0 },
+        { id: 32, nivel: 2, ambito: "Escuela", escenario: "Un simulacro no se realiza hace años.", opciones: ["Solicitar uno", "Esperar emergencia", "No es necesario"], correcta: 0 },
+        { id: 33, nivel: 2, ambito: "Escuela", escenario: "Puertas de emergencia cerradas con llave.", opciones: ["Mantenerlas desbloqueadas", "Abrir solo en emergencia", "Ignorarlo"], correcta: 0 },
+        { id: 34, nivel: 2, ambito: "Escuela", escenario: "Humo en el aula.", opciones: ["Evacuar inmediatamente", "Guardar los útiles en mochilas", "Buscar origen sin avisar"], correcta: 0 },
+        { id: 35, nivel: 2, ambito: "Escuela", escenario: "Extintor vencido.", opciones: ["Solicitar recarga", "Usarlo igual", "Quitar y guardarlo"], correcta: 0 },
+        { id: 36, nivel: 2, ambito: "Escuela", escenario: "Escalera bloqueada con mochilas.", opciones: ["Despejarla", "Pasar igual", "Dejarla"], correcta: 0 },
+        { id: 37, nivel: 2, ambito: "Escuela", escenario: "Fuego en un tacho de basura.", opciones: ["Avisar y usar agua o extintor", "Patearlo", "Correr"], correcta: 0 },
+        { id: 38, nivel: 2, ambito: "Escuela", escenario: "Alumnos empujan durante evacuación.", opciones: ["Detener y ordenar", "Acelerar", "Ignorar"], correcta: 0 },
+        { id: 39, nivel: 2, ambito: "Escuela", escenario: "No hay planos de evacuación visibles.", opciones: ["Solicitar colocación", "Explicarlo oralmente", "No es necesario"], correcta: 0 },
+        { id: 40, nivel: 2, ambito: "Escuela", escenario: "Se produce un incendio y alarma no funciona.", opciones: ["Repararla", "Avisar a gritos", "Ir por Aulas y Oficinas avisando"], correcta: 0 },
+       
+        // NIVEL 3 - EMPRESA
+        { id: 41, nivel: 3, ambito: "Empresa", escenario: "Se detecta humo en el área de producción.", opciones: ["Activar alarma y evacuar", "Continuar trabajando", "Abrir ventanas"], correcta: 0 },
+        { id: 42, nivel: 3, ambito: "Empresa", escenario: "Un empleado no conoce el plan de emergencia.", opciones: ["Capacitarlo", "Ignorarlo", "Asignarle otra tarea"], correcta: 0 },
+        { id: 43, nivel: 3, ambito: "Empresa", escenario: "Material inflamable mal rotulado.", opciones: ["Corregir rotulación", "Tachar sin avisar", "Usarlo igual"], correcta: 0 },
+        { id: 44, nivel: 3, ambito: "Empresa", escenario: "Salida de emergencia obstruida.", opciones: ["Liberarla", "Avisar después", "Usar otra"], correcta: 0 },
+        { id: 45, nivel: 3, ambito: "Empresa", escenario: "Incendio eléctrico en tablero.", opciones: ["Cortar energía y usar extintor adecuado", "Echar agua", "Salir corriendo"], correcta: 0 },
+        { id: 46, nivel: 3, ambito: "Empresa", escenario: "Extintor sin mantenimiento.", opciones: ["Enviar a recarga", "Marcarlo", "Dejarlo"], correcta: 0 },
+        { id: 47, nivel: 3, ambito: "Empresa", escenario: "Empleado fuma en zona prohibida.", opciones: ["Sancionar y corregir", "Advertir informalmente", "Ignorar"], correcta: 0 },
+        { id: 48, nivel: 3, ambito: "Empresa", escenario: "Falta iluminación de emergencia.", opciones: ["Instalarla", "Usar linternas", "No es necesaria"], correcta: 0 },
+        { id: 49, nivel: 3, ambito: "Empresa", escenario: "Simulacros no realizados.", opciones: ["Programarlos", "Esperar inspección", "Ignorarlo"], correcta: 0 },
+        { id: 50, nivel: 3, ambito: "Empresa", escenario: "Depósito sobrecargado.", opciones: ["Ordenar y reducir carga", "Cerrar puertas", "Continuar"], correcta: 0 }
+  ];
+  
+    let nivelActual = 1;
+    let indiceEnNivel = 0;
+    let puntos = 0;
+    let vidas = 3;
+    let tiempoRestante;
+    let timerInterval;
+
+    const sonidoAlarma = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+    const sonidoError = new Audio('https://actions.google.com/sounds/v1/emergency/ambulance_siren_distant.ogg');
+    const sonidoAcierto = new Audio('https://actions.google.com/sounds/v1/cartoon/clime_up_the_ladder.ogg');
+    const sonidoFuego = new Audio('https://actions.google.com/sounds/v1/ambiences/fire.ogg');
+    sonidoFuego.loop = true;
+    sonidoFuego.volume = 1.0;
+    
+    // --- FLUJO DE INICIO ---
+
+    // Al cargar la página, SOLO mostramos el consejo de la IA
+     async function mostrarConsejoAlEntrar() {
+        document.getElementById('modal-nuevo-diseno').style.display = 'flex';
+        try {
+            const respuesta = await fetch('https://guardiandeemergencias.pythonanywhere.com/consejo_diario');
+            const data = await respuesta.json();
+            document.getElementById('texto-consejo-ia').innerText = '"' + data.consejo + '"';
+        } catch (error) {
+            document.getElementById('texto-consejo-ia').innerText = "Mantente alerta, cadete. Revisa siempre tus extintores.";
+        }
+    }
+
+    // Esta función se activa al tocar el botón rojo "COMENZAR SIMULACRO"
+         function iniciarSimulacro() {
+    // 1. Ocultar la pantalla roja de inicio
+    document.getElementById('pantalla-inicio').style.display = 'none';
+    
+    // 2. Asegurar que el contenedor del juego sea visible
+    document.querySelector('.container').style.display = 'block';
+
+    // 3. Audio (Volumen corregido a 1.0)
+    sonidoFuego.volume = 1.0;
+    sonidoFuego.play().catch(e => console.log("Audio esperando click"));
+
+    // 4. Cargar la primera pregunta
+    cargarEscenario();
+}
+
+     // --- LÓGICA DEL JUEGO ---
+
+     async function cargarEscenario() {
+        const escenariosDelNivel = baseDeDatosEscenarios.filter(e => e.nivel === nivelActual);
+        
+        if (indiceEnNivel >= escenariosDelNivel.length) {
+            alert("¡Nivel completado!");
+            return;
+        }
+
+        const esc = escenariosDelNivel[indiceEnNivel];
+        document.getElementById("scenario-question").innerText = esc.escenario;
+        
+        const optionsDiv = document.getElementById("options-container");
+        optionsDiv.innerHTML = "";
+        document.getElementById("feedback").style.display = "none";
+
+        esc.opciones.forEach((texto, index) => {
+            const btn = document.createElement("button");
+            btn.innerText = texto;
+            btn.className = "btn-opcion";
+            btn.onclick = () => verificarRespuesta(index, esc);
+            optionsDiv.appendChild(btn);
+        });
+
+        function iniciarTimer() { 
+        tiempoRestante = 15; // Reiniciamos a 15 segundos
+        document.getElementById("timer-display").innerText = `⏱️ ${tiempoRestante}s`;
+        
+        // Limpiamos cualquier reloj previo para que no corran dos al mismo tiempo
+        clearInterval(timerInterval); 
+        
+        // Creamos el intervalo que resta 1 cada segundo (1000ms)
+        timerInterval = setInterval(() => {
+            tiempoRestante--;
+            document.getElementById("timer-display").innerText = `⏱️ ${tiempoRestante}s`;
+            
+            // Sonido de alerta si queda poco tiempo
+            if (tiempoRestante <= 5 && tiempoRestante > 0) {
+                sonidoAlarma.play();
+            }
+            
+            // Si llega a cero, se detiene y perdemos una vida
+            if (tiempoRestante <= 0) {
+                clearInterval(timerInterval);
+                manejarTiempoAgotado();
+            }
+        }, 1000);
+    }
+
+    function manejarTiempoAgotado() {
+        vidas--;
+        actualizarVidasUI();
+        alert("🚨 ¡TIEMPO AGOTADO! El incendio se propagó.");
+        siguientePregunta();
+    }
+
+        iniciarTimer(); // El reloj solo arranca cuando la pregunta es visible
+    }
+
+    // --- FUNCIÓN PARA VERIFICAR RESPUESTAS Y LLAMAR A LA IA ---
+    async function verificarRespuesta(indexElegido, objetoEscenario) {
+        // 1. Detenemos el cronómetro inmediatamente
+        clearInterval(timerInterval);
+        
+        const feedback = document.getElementById("feedback");
+        feedback.style.display = "block";
+        
+        // 2. Si la respuesta es CORRECTA
+        if (indexElegido === objetoEscenario.correcta) {
+            sonidoAcierto.play();
+            puntos += 100;
+            feedback.innerText = "✅ ¡Correcto! +100 puntos.";
+            feedback.style.color = "#2e7d32";
+            actualizarInterfaz();
+            setTimeout(siguientePregunta, 2000); // 2 segundos y pasa a la siguiente
+        } 
+        // 3. Si la respuesta es INCORRECTA
+        else {
+            sonidoError.play();
+            vidas--;
+            actualizarVidasUI();
+            
+            feedback.innerText = "⏳ El Bombero IA está analizando tu error...";
+            feedback.style.color = "#d32f2f";
+
+            try {
+                // LLAMADA AL SERVIDOR PYTHON (Tu IA de Gemini)
+                const respuesta = await fetch('https://guardiandeemergencias.pythonanywhere.com/analizar_error', {
+             method: 'POST',
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify({ 
+             error: objetoEscenario.opciones[indexElegido], 
+             escenario: objetoEscenario.escenario 
+           })
+    });
+
+                const data = await respuesta.json();
+                // Mostramos el consejo que nos da Python
+                feedback.innerText = "👨‍🚒 CONSEJO: " + data.consejo;
+                
+            } catch (e) {
+                console.error("Error conectando a la IA:", e);
+                feedback.innerText = "❌ Central fuera de línea. ¡Recuerda que la seguridad es primero!";
+            }
+
+            // Damos 6 segundos para que el usuario pueda leer el consejo de la IA antes de seguir
+            setTimeout(siguientePregunta, 6000); 
+        }
+    }
+
+    function siguientePregunta() {
+        if (vidas > 0) {
+            indiceEnNivel++;
+            cargarEscenario();
+        }
+    }
+
+    function actualizarVidasUI() {
+        const display = document.getElementById("vidas-display");
+        display.innerText = "❤️".repeat(Math.max(0, vidas)) + "🖤".repeat(Math.max(0, 3 - vidas));
+        if (vidas <= 0) {
+            alert("👨‍🚒 Fin del entrenamiento.");
+            reiniciarJuego();
+        }
+    }
+
+    function actualizarInterfaz() {
+    document.getElementById("txt-puntos").innerText = puntos;
+    const progreso = Math.min((puntos / 1000) * 100, 100); 
+    document.getElementById("bar-fill").style.width = progreso + "%";
+    
+    if (puntos >= 1000) {
+        // DETENER FUEGO USANDO LA CONSTANTE (aquí estaba el error)
+        sonidoFuego.pause();
+
+        document.getElementById("simulador").style.display = "none";
+        document.getElementById("pantalla-certificado").style.display = "block";
+        document.getElementById("diploma-fecha").innerText = new Date().toLocaleDateString();
+    }
+}
+
+    function reiniciarJuego() {
+        vidas = 3; puntos = 0; indiceEnNivel = 0;
+        actualizarVidasUI(); actualizarInterfaz(); cargarEscenario();
+    }
+
+    function finalizarJuego() {
+    sonidoFuego.pause();
+    sonidoFuego.currentTime = 0; 
+}
+
+    window.onload = () => {
+        console.log("Cuartel listo. Cargando consejo del día...");
+        mostrarConsejoAlEntrar(); // Llamamos al consejo aquí
+    };
+
+// <--- PEGA AQUÍ LA FUNCIÓN NUEVA --->
+    function seleccionarAmbito(num) {
+        nivelActual = num;
+        indiceEnNivel = 0;
+        const nombres = ["", "Hogar", "Escuela", "Empresa"];
+        document.getElementById("txt-nivel").innerText = `Nivel ${num}: ${nombres[num]}`;
+        iniciarSimulacro();
+    }
+
+</script>
+</body>
+</html>  
+    
