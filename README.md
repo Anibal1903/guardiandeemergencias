@@ -1,0 +1,1 @@
+PROPIEDAD INTELECTUAL Este repositorio contiene el código fuente de "Guardián de Emergencias". El código se publica con fines de demostración y portafolio. No se otorga licencia para su uso comercial, copia o distribución sin permiso previo del propietario.
