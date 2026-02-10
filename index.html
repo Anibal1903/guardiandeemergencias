@@ -45,7 +45,7 @@
     <div>
         <span id="txt-nivel">Nivel 1: Hogar</span> | 
         <span id="vidas-display" class="vidas-container">❤️❤️❤️</span> |
-        <span id="timer-display">⏱️ 15s</span> |
+        <span id="timer-display">⏱️ 30s</span> |
         <strong>Puntos: <span id="txt-puntos">0</span></strong>
     </div>
 </header>
@@ -99,7 +99,7 @@
         <p>Otorgado el: <strong id="diploma-fecha">--/--/----</strong></p>
        <br>
        <button class="main-btn" onclick="window.print()">🖨️ Imprimir Diploma</button>
-       <button class="main-btn" style="background:#333;" onclick="location.reload()">Volver a Jugar</button>
+       <button class="main-btn" style="background:#2196F3;" onclick="continuarEntrenamiento()">🚀 Seguir con otro Ámbito</button>
     </div>
     <style>
     #modal-nuevo-diseno {
@@ -157,8 +157,8 @@
        { id: 1, nivel: 1, ambito: "Hogar", escenario: "Se produce un pequeño incendio en una sartén con aceite.", opciones: ["Echar agua inmediatamente", "Tapar la sartén y apagar el fuego", "Mover la sartén al patio"], correcta: 1 },
        { id: 2, nivel: 1, ambito: "Hogar", escenario: "Un enchufe comienza a largar chispas.", opciones: ["Cortar la corriente y desenchufar", "Echarle agua", "Cubrirlo con una tela"], correcta: 0 },
        { id: 3, nivel: 1, ambito: "Hogar", escenario: "Hay humo saliendo del horno eléctrico.", opciones: ["Abrir el horno inmediatamente", "Desenchufar y mantener cerrado", "Dejar que siga en funcionamiento"], correcta: 1 },
-       { id: 4, nivel: 1, ambito: "Hogar", escenario: "Tiene que salir a realizar trátmites, regresa rápido y tiene hornallas encendidas.", opciones: ["Avisa a su hijo que está con el celular", "Se va y no avisa", "La apaga y enciende al regresar"], correcta: 0 },
-       { id: 5, nivel: 1, ambito: "Hogar", escenario: "Se genera un incendio en una habitación.", opciones: ["Intento apagarlo", "Abro puertas y ventanas", "LLamo a bomberos e intento apagarlo"], correcta: 0},
+       { id: 4, nivel: 1, ambito: "Hogar", escenario: "Tienes que salir a realizar trámites, regresas rápido y tiene hornallas encendidas.", opciones: ["Avisas a tu hijo que está con el celular", "Te vas y no avisas", "La apagas y enciendes al regresar"], correcta: 2 },
+       { id: 5, nivel: 1, ambito: "Hogar", escenario: "Se genera un incendio en una habitación.", opciones: ["Intento apagarlo", "Abro puertas y ventanas", "LLamo a bomberos e intento apagarlo"], correcta: 2 },
        { id: 6, nivel: 1, ambito: "Hogar", escenario: "Detectás olor a gas en la cocina.", opciones: ["Encender la luz", "Ventilar y cerrar la llave de gas", "Usar el celular"], correcta: 1 },
        { id: 7, nivel: 1, ambito: "Hogar", escenario: "Un calefactor está muy cerca de muebles.", opciones: ["Apagarlo y alejarlo", "Bajar la temperatura","Nada, es normal"], correcta: 0 },
        { id: 8, nivel: 1, ambito: "Hogar", escenario: "Un niño juega con fósforos.", opciones: ["Quitarlos y explicar el riesgo", "Dejarlo aprender", "Ignorar"], correcta: 0 },
@@ -207,218 +207,262 @@
         { id: 47, nivel: 3, ambito: "Empresa", escenario: "Empleado fuma en zona prohibida.", opciones: ["Sancionar y corregir", "Advertir informalmente", "Ignorar"], correcta: 0 },
         { id: 48, nivel: 3, ambito: "Empresa", escenario: "Falta iluminación de emergencia.", opciones: ["Instalarla", "Usar linternas", "No es necesaria"], correcta: 0 },
         { id: 49, nivel: 3, ambito: "Empresa", escenario: "Simulacros no realizados.", opciones: ["Programarlos", "Esperar inspección", "Ignorarlo"], correcta: 0 },
-        { id: 50, nivel: 3, ambito: "Empresa", escenario: "Depósito sobrecargado.", opciones: ["Ordenar y reducir carga", "Cerrar puertas", "Continuar"], correcta: 0 }
+        { id: 50, nivel: 3, ambito: "Empresa", escenario: "Depósito sobrecargado.", opciones: ["Ordenar y reducir carga", "Cerrar puertas", "Continuar"], correcta: 0 },
+        { id: 51, nivel: 3, ambito: "Empresa", escenario: "Alarma contra incendios desactivada.", opciones: ["Reactivar de inmediato", "Usar silbato", "Avisar verbalmente"], correcta: 0 },
+        { id: 52, nivel: 3, ambito: "Empresa", escenario: "Empleado intenta apagar un gran fuego sin capacitación.", opciones: ["Ordenar evacuación", "Dejarlo actuar", "Ayudar a apagarlo"], correcta: 0 },
+        { id: 53, nivel: 3, ambito: "Empresa", escenario: "Plan de emergencia desactualizado.", opciones: ["Actualizarlo", "Usar el viejo", "Ignorarlo"], correcta: 0 },
+        { id: 54, nivel: 3, ambito: "Empresa", escenario: "Reconozco trabajo con Materiales Peligrosos.", opciones: ["Solicitar capacitación", "NUnca paso nada", "Pedir otro lugar de trabajo"], correcta: 0 },
+        { id: 55, nivel: 3, ambito: "Empresa", escenario: "Fuga de gas detectada.", opciones: ["Evacuar y cortar suministro", "Ventilar solamente", "Continuar tareas"], correcta: 0 },
+        { id: 56, nivel: 3, ambito: "Empresa", escenario: "Señalización inexistente.", opciones: ["Pedir colocar señalética", "Dar indicaciones orales", "No es prioritaria"], correcta: 0 },
+        { id: 57, nivel: 3, ambito: "Empresa", escenario: "Empleado bloquea salida con mercadería.", opciones: ["Retirarla de inmediato", "Esperar inspección", "Usar otra salida"], correcta: 0 },
+        { id: 58, nivel: 3, ambito: "Empresa", escenario: "No hay responsable de seguridad designado.", opciones: ["Asignar uno", "Repartir tareas", "No es obligatorio"], correcta: 0 },
+        { id: 59, nivel: 3, ambito: "Empresa", escenario: "Cables sueltos en oficina.", opciones: ["Ordenarlos y repararlos", "Pisarlos con cuidado", "Ignorarlos"], correcta: 0 },
+        { id: 60, nivel: 3, ambito: "Empresa", escenario: "No hay capacitación en incendios.", opciones: ["Implementar capacitación", "Confiar en experiencia", "Esperar emergencia"], correcta: 0 }
   ];
   
-    let nivelActual = 1;
-    let indiceEnNivel = 0;
-    let puntos = 0;
-    let vidas = 3;
-    let tiempoRestante;
-    let timerInterval;
+  // --- VARIABLES DE ESTADO ---
+let nivelActual = 1;
+let puntosNivelActual = 0;
+let indiceEnNivel = 0;
+let puntos = 0; 
+let vidas = 3;
+let tiempoRestante;
+let timerInterval;
+let ambitosCompletadosHoy = {
+    1: false, // Hogar
+    2: false, // Escuela
+    3: false, // Empresa
+    4: false  // Rescate Vehicular
+};
+// Recuperamos el progreso guardado para no perder los 10 de ayer
+let totalCompletados = parseInt(localStorage.getItem('totalEscenariosSuperados')) || 0;
 
-    const sonidoAlarma = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
-    const sonidoError = new Audio('https://actions.google.com/sounds/v1/emergency/ambulance_siren_distant.ogg');
-    const sonidoAcierto = new Audio('https://actions.google.com/sounds/v1/cartoon/clime_up_the_ladder.ogg');
-    const sonidoFuego = new Audio('https://actions.google.com/sounds/v1/ambiences/fire.ogg');
-    sonidoFuego.loop = true;
-    sonidoFuego.volume = 1.0;
-    
-    // --- FLUJO DE INICIO ---
+// --- SONIDOS ---
+const sonidoAlarma = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+const sonidoError = new Audio('https://actions.google.com/sounds/v1/emergency/ambulance_siren_distant.ogg');
+const sonidoAcierto = new Audio('https://actions.google.com/sounds/v1/cartoon/clime_up_the_ladder.ogg');
+const sonidoFuego = new Audio('https://actions.google.com/sounds/v1/ambiences/fire.ogg');
+sonidoFuego.loop = true;
 
-    // Al cargar la página, SOLO mostramos el consejo de la IA
-     async function mostrarConsejoAlEntrar() {
-        document.getElementById('modal-nuevo-diseno').style.display = 'flex';
-        try {
-            const respuesta = await fetch('https://guardiandeemergencias.pythonanywhere.com/consejo_diario');
-            const data = await respuesta.json();
-            document.getElementById('texto-consejo-ia').innerText = '"' + data.consejo + '"';
-        } catch (error) {
-            document.getElementById('texto-consejo-ia').innerText = "Mantente alerta, cadete. Revisa siempre tus extintores.";
-        }
+window.onload = () => {
+    verificarBloqueo();
+    mostrarConsejoAlEntrar();
+};
+
+function verificarBloqueo() {
+    const bloqueoHasta = localStorage.getItem('bloqueoEntrenamiento');
+    if (bloqueoHasta && new Date().getTime() < bloqueoHasta) {
+        const restante = Math.ceil((bloqueoHasta - new Date().getTime()) / (1000 * 60 * 60));
+        bloquearApp(`🚨 Entrenamiento suspendido. Vuelve en ${restante} horas para tu próxima guardia.`);
     }
+}
 
-    // Esta función se activa al tocar el botón rojo "COMENZAR SIMULACRO"
-         function iniciarSimulacro() {
-    // 1. Ocultar la pantalla roja de inicio
-    document.getElementById('pantalla-inicio').style.display = 'none';
+function bloquearApp(mensaje) {
+    document.body.innerHTML = `
+        <div style="height:100vh; background:#1a1a1a; color:white; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:20px; font-family: sans-serif;">
+            <h1>👨‍🚒 GUARDiÁN DE EMERGENCIAS</h1>
+            <p style="font-size:1.5rem; max-width: 600px;">${mensaje}</p>
+            <button onclick="localStorage.removeItem('bloqueoEntrenamiento'); location.reload();" style="padding:15px 30px; background:#e63946; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold; margin-top:20px;">REINTENTAR (DEBUG)</button>
+        </div>`;
+}
+
+function iniciarTimer() { 
+    clearInterval(timerInterval);
+    tiempoRestante = 30;
+    document.getElementById("timer-display").innerText = `⏱️ ${tiempoRestante}s`;
     
-    // 2. Asegurar que el contenedor del juego sea visible
+    timerInterval = setInterval(() => {
+        tiempoRestante--;
+        document.getElementById("timer-display").innerText = `⏱️ ${tiempoRestante}s`;
+        if (tiempoRestante <= 5 && tiempoRestante > 0) sonidoAlarma.play();
+        if (tiempoRestante <= 0) {
+            clearInterval(timerInterval);
+            manejarError("¡TIEMPO AGOTADO!");
+        }
+    }, 1000);
+}
+
+async function iniciarSimulacro() {
+    document.getElementById('pantalla-inicio').style.display = 'none';
     document.querySelector('.container').style.display = 'block';
-
-    // 3. Audio (Volumen corregido a 1.0)
-    sonidoFuego.volume = 1.0;
-    sonidoFuego.play().catch(e => console.log("Audio esperando click"));
-
-    // 4. Cargar la primera pregunta
+    sonidoFuego.play().catch(e => console.log("Audio esperando interacción"));
     cargarEscenario();
 }
 
-     // --- LÓGICA DEL JUEGO ---
+// --- FUNCIÓN CENTRAL DE CARGA ---
+async function cargarEscenario() {
+    if (vidas <= 0) return;
 
-     async function cargarEscenario() {
-        const escenariosDelNivel = baseDeDatosEscenarios.filter(e => e.nivel === nivelActual);
+    // Filtramos solo los escenarios manuales de este nivel
+    const escenariosManuales = baseDeDatosEscenarios.filter(e => e.nivel === nivelActual);
+    let esc;
+
+    // LÓGICA DE DECISIÓN:
+    // Si el usuario ya completó los 30 básicos (totalCompletados >= 30), activar IA.
+    // O si en este nivel específico ya superó los manuales disponibles.
+    if (totalCompletados < 30 && indiceEnNivel < escenariosManuales.length) {
+        esc = escenariosManuales[indiceEnNivel];
+        renderizarEscenario(esc);
+    } 
+    else {
+        // --- MODO IA ACTIVADO ---
+        document.getElementById("scenario-question").innerText = "🔄 El Bombero IA está analizando nuevos riesgos en tiempo real...";
+        document.getElementById("options-container").innerHTML = "<p style='color:white'>Estableciendo conexión con el satélite de emergencias...</p>";
         
-        if (indiceEnNivel >= escenariosDelNivel.length) {
-            alert("¡Nivel completado!");
-            return;
+        const nombres = ["", "Hogar", "Escuela", "Empresa", "Rescate Vehicular"];
+        
+        try {
+            const respuesta = await fetch('https://guardiandeemergencias.pythonanywhere.com/generar_escenario', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ambito: nombres[nivelActual] })
+            });
+            
+            if (!respuesta.ok) throw new Error("Servidor ocupado");
+            esc = await respuesta.json();
+            renderizarEscenario(esc);
+        } catch (error) {
+            console.error("Error IA:", error);
+            document.getElementById("scenario-question").innerText = "⚠️ Error de red. Reintentando en 3 segundos...";
+            setTimeout(cargarEscenario, 3000);
         }
-
-        const esc = escenariosDelNivel[indiceEnNivel];
-        document.getElementById("scenario-question").innerText = esc.escenario;
-        
-        const optionsDiv = document.getElementById("options-container");
-        optionsDiv.innerHTML = "";
-        document.getElementById("feedback").style.display = "none";
-
-        esc.opciones.forEach((texto, index) => {
-            const btn = document.createElement("button");
-            btn.innerText = texto;
-            btn.className = "btn-opcion";
-            btn.onclick = () => verificarRespuesta(index, esc);
-            optionsDiv.appendChild(btn);
-        });
-
-        function iniciarTimer() { 
-        tiempoRestante = 15; // Reiniciamos a 15 segundos
-        document.getElementById("timer-display").innerText = `⏱️ ${tiempoRestante}s`;
-        
-        // Limpiamos cualquier reloj previo para que no corran dos al mismo tiempo
-        clearInterval(timerInterval); 
-        
-        // Creamos el intervalo que resta 1 cada segundo (1000ms)
-        timerInterval = setInterval(() => {
-            tiempoRestante--;
-            document.getElementById("timer-display").innerText = `⏱️ ${tiempoRestante}s`;
-            
-            // Sonido de alerta si queda poco tiempo
-            if (tiempoRestante <= 5 && tiempoRestante > 0) {
-                sonidoAlarma.play();
-            }
-            
-            // Si llega a cero, se detiene y perdemos una vida
-            if (tiempoRestante <= 0) {
-                clearInterval(timerInterval);
-                manejarTiempoAgotado();
-            }
-        }, 1000);
     }
+}
 
-    function manejarTiempoAgotado() {
-        vidas--;
-        actualizarVidasUI();
-        alert("🚨 ¡TIEMPO AGOTADO! El incendio se propagó.");
-        siguientePregunta();
-    }
+// --- ESTA FUNCIÓN FALTABA ---
+function renderizarEscenario(esc) {
+    document.getElementById("scenario-question").innerText = esc.escenario;
+    const optionsDiv = document.getElementById("options-container");
+    optionsDiv.innerHTML = "";
+    document.getElementById("feedback").style.display = "none";
 
-        iniciarTimer(); // El reloj solo arranca cuando la pregunta es visible
-    }
-
-    // --- FUNCIÓN PARA VERIFICAR RESPUESTAS Y LLAMAR A LA IA ---
-    async function verificarRespuesta(indexElegido, objetoEscenario) {
-        // 1. Detenemos el cronómetro inmediatamente
-        clearInterval(timerInterval);
-        
-        const feedback = document.getElementById("feedback");
-        feedback.style.display = "block";
-        
-        // 2. Si la respuesta es CORRECTA
-        if (indexElegido === objetoEscenario.correcta) {
-            sonidoAcierto.play();
-            puntos += 100;
-            feedback.innerText = "✅ ¡Correcto! +100 puntos.";
-            feedback.style.color = "#2e7d32";
-            actualizarInterfaz();
-            setTimeout(siguientePregunta, 2000); // 2 segundos y pasa a la siguiente
-        } 
-        // 3. Si la respuesta es INCORRECTA
-        else {
-            sonidoError.play();
-            vidas--;
-            actualizarVidasUI();
-            
-            feedback.innerText = "⏳ El Bombero IA está analizando tu error...";
-            feedback.style.color = "#d32f2f";
-
-            try {
-                // LLAMADA AL SERVIDOR PYTHON (Tu IA de Gemini)
-                const respuesta = await fetch('https://guardiandeemergencias.pythonanywhere.com/analizar_error', {
-             method: 'POST',
-             headers: { 'Content-Type': 'application/json' },
-             body: JSON.stringify({ 
-             error: objetoEscenario.opciones[indexElegido], 
-             escenario: objetoEscenario.escenario 
-           })
+    esc.opciones.forEach((texto, index) => {
+        const btn = document.createElement("button");
+        btn.innerText = texto;
+        btn.className = "btn-opcion";
+        btn.onclick = () => verificarRespuesta(index, esc);
+        optionsDiv.appendChild(btn);
     });
+    iniciarTimer();
+}
 
-                const data = await respuesta.json();
-                // Mostramos el consejo que nos da Python
-                feedback.innerText = "👨‍🚒 CONSEJO: " + data.consejo;
-                
-            } catch (e) {
-                console.error("Error conectando a la IA:", e);
-                feedback.innerText = "❌ Central fuera de línea. ¡Recuerda que la seguridad es primero!";
-            }
+async function verificarRespuesta(indexElegido, objetoEscenario) {
+    clearInterval(timerInterval);
+    const feedback = document.getElementById("feedback");
+    feedback.style.display = "block";
 
-            // Damos 6 segundos para que el usuario pueda leer el consejo de la IA antes de seguir
-            setTimeout(siguientePregunta, 6000); 
+    if (indexElegido === objetoEscenario.correcta) {
+        sonidoAcierto.play();
+        puntos += 100;
+        puntosNivelActual += 100;
+        feedback.innerText = "✅ ¡Correcto! +100 puntos.";
+        feedback.style.color = "#2e7d32";
+        actualizarInterfaz();
+        setTimeout(siguientePregunta, 2000);
+    } else {
+        feedback.innerText = "⏳ Analizando error...";
+        feedback.style.color = "#d32f2f";
+        manejarError("Respuesta Incorrecta");
+        
+        try {
+            const respuesta = await fetch('https://guardiandeemergencias.pythonanywhere.com/analizar_error', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ error: objetoEscenario.opciones[indexElegido], escenario: objetoEscenario.escenario })
+            });
+            const data = await respuesta.json();
+            feedback.innerText = "👨‍🚒 CONSEJO: " + data.consejo;
+        } catch (e) {
+            feedback.innerText = "❌ Error al obtener consejo.";
         }
+        setTimeout(siguientePregunta, 5000);
     }
+}
 
-    function siguientePregunta() {
-        if (vidas > 0) {
-            indiceEnNivel++;
-            cargarEscenario();
-        }
+function siguientePregunta() {
+    if (vidas > 0 && puntosNivelActual < 1000) {
+        indiceEnNivel++;
+        cargarEscenario();
     }
+}
 
-    function actualizarVidasUI() {
-        const display = document.getElementById("vidas-display");
-        display.innerText = "❤️".repeat(Math.max(0, vidas)) + "🖤".repeat(Math.max(0, 3 - vidas));
-        if (vidas <= 0) {
-            alert("👨‍🚒 Fin del entrenamiento.");
-            reiniciarJuego();
-        }
+function manejarError(mensaje) {
+    sonidoError.play();
+    vidas--;
+    actualizarVidasUI();
+    if (vidas <= 0) {
+        const manana = new Date().getTime() + (24 * 60 * 60 * 1000);
+        localStorage.setItem('bloqueoEntrenamiento', manana);
+        setTimeout(() => {
+            bloquearApp("⚠️ Demasiados errores. Sigue entrenando e inténtalo mañana.");
+        }, 1500);
     }
+}
 
-    function actualizarInterfaz() {
+function actualizarVidasUI() {
+    const display = document.getElementById("vidas-display");
+    if(display) display.innerText = "❤️".repeat(Math.max(0, vidas)) + "🖤".repeat(Math.max(0, 3 - vidas));
+}
+
+function deshabilitarBotonAmbito(num) {
+    const botones = document.querySelectorAll('.info-card .main-btn');
+    if (botones[num-1]) {
+        botones[num-1].disabled = true;
+        botones[num-1].innerText = "✅ COMPLETADO";
+        botones[num-1].style.background = "#444";
+    }
+}
+
+function actualizarInterfaz() {
     document.getElementById("txt-puntos").innerText = puntos;
-    const progreso = Math.min((puntos / 1000) * 100, 100); 
-    document.getElementById("bar-fill").style.width = progreso + "%";
     
-    if (puntos >= 1000) {
-        // DETENER FUEGO USANDO LA CONSTANTE (aquí estaba el error)
+    // La barra se llena con los primeros 30 escenarios (3000 puntos)
+    const progresoBarra = Math.min((puntos / 3000) * 100, 100);
+    document.getElementById("bar-fill").style.width = progresoBarra + "%";
+
+    // ¿Completó los 10 escenarios (1000 pts) del ámbito actual?
+    if (puntosNivelActual >= 1000 && !ambitosCompletadosHoy[nivelActual]) {
+        ambitosCompletadosHoy[nivelActual] = true;
+        totalCompletados += 10;
+        localStorage.setItem('totalEscenariosSuperados', totalCompletados);
+        
+        clearInterval(timerInterval);
         sonidoFuego.pause();
+        deshabilitarBotonAmbito(nivelActual);
 
-        document.getElementById("simulador").style.display = "none";
-        document.getElementById("pantalla-certificado").style.display = "block";
-        document.getElementById("diploma-fecha").innerText = new Date().toLocaleDateString();
+        // REGLA: Si completó los 3 ámbitos básicos (30 escenarios en total)
+        if (ambitosCompletadosHoy[1] && ambitosCompletadosHoy[2] && ambitosCompletadosHoy[3]) {
+            const manana = new Date().getTime() + (24 * 60 * 60 * 1000);
+            localStorage.setItem('bloqueoEntrenamiento', manana);
+            alert("🚨 ¡GUARDIA COMPLETADA! Has superado los 30 escenarios básicos. Vuelve mañana para los desafíos infinitos de la IA.");
+            location.reload();
+        } else {
+            alert(`✅ Sector ${nivelActual} asegurado. Elige el siguiente punto de despliegue.`);
+            document.getElementById("simulador").style.display = "none";
+        }
     }
 }
 
-    function reiniciarJuego() {
-        vidas = 3; puntos = 0; indiceEnNivel = 0;
-        actualizarVidasUI(); actualizarInterfaz(); cargarEscenario();
-    }
-
-    function finalizarJuego() {
-    sonidoFuego.pause();
-    sonidoFuego.currentTime = 0; 
+function seleccionarAmbito(num) {
+    if (ambitosCompletadosHoy[num]) return;
+    nivelActual = num;
+    indiceEnNivel = 0; 
+    puntosNivelActual = 0; 
+    const nombres = ["", "Hogar", "Escuela", "Empresa", "Rescate Vehicular"];
+    document.getElementById("txt-nivel").innerText = `Nivel ${num}: ${nombres[num]}`;
+    document.getElementById("simulador").style.display = "block";
+    iniciarSimulacro();
 }
 
-    window.onload = () => {
-        console.log("Cuartel listo. Cargando consejo del día...");
-        mostrarConsejoAlEntrar(); // Llamamos al consejo aquí
-    };
-
-// <--- PEGA AQUÍ LA FUNCIÓN NUEVA --->
-    function seleccionarAmbito(num) {
-        nivelActual = num;
-        indiceEnNivel = 0;
-        const nombres = ["", "Hogar", "Escuela", "Empresa"];
-        document.getElementById("txt-nivel").innerText = `Nivel ${num}: ${nombres[num]}`;
-        iniciarSimulacro();
+async function mostrarConsejoAlEntrar() {
+    try {
+        const respuesta = await fetch('https://guardiandeemergencias.pythonanywhere.com/consejo_diario');
+        const data = await respuesta.json();
+        document.getElementById('texto-consejo-ia').innerText = '"' + data.consejo + '"';
+    } catch (error) {
+        document.getElementById('texto-consejo-ia').innerText = "La prevención es la mejor herramienta.";
     }
+}
 
 </script>
 
