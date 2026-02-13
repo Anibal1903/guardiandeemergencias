@@ -58,6 +58,16 @@
         <div id="feedback"></div>
     </div>
 
+    <div class="card info-card" style="border-top-color: #f1c40f;">
+    <h3>🚗 Rescate Vehicular</h3>
+    <p style="font-style: italic; color: #666; font-size: 0.9em;">"Aprende a salvar vidas en la ruta"</p>
+    <ul>
+        <li>Protocolo PAS: Proteger, Avisar, Socorrer.</li>
+        <li>Seguridad perimetral y bioseguridad.</li>
+    </ul>
+    <button class="main-btn" style="background: #f1c40f; color: #333;" onclick="seleccionarAmbito(4)">Jugar Nivel Rescate</button>
+</div>
+
     <div class="grid">
         <div class="card info-card">
             <h3>🏠 Hogar</h3>
@@ -217,7 +227,19 @@
         { id: 57, nivel: 3, ambito: "Empresa", escenario: "Empleado bloquea salida con mercadería.", opciones: ["Retirarla de inmediato", "Esperar inspección", "Usar otra salida"], correcta: 0 },
         { id: 58, nivel: 3, ambito: "Empresa", escenario: "No hay responsable de seguridad designado.", opciones: ["Asignar uno", "Repartir tareas", "No es obligatorio"], correcta: 0 },
         { id: 59, nivel: 3, ambito: "Empresa", escenario: "Cables sueltos en oficina.", opciones: ["Ordenarlos y repararlos", "Pisarlos con cuidado", "Ignorarlos"], correcta: 0 },
-        { id: 60, nivel: 3, ambito: "Empresa", escenario: "No hay capacitación en incendios.", opciones: ["Implementar capacitación", "Confiar en experiencia", "Esperar emergencia"], correcta: 0 }
+        { id: 60, nivel: 3, ambito: "Empresa", escenario: "No hay capacitación en incendios.", opciones: ["Implementar capacitación", "Confiar en experiencia", "Esperar emergencia"], correcta: 0 },
+
+        // NIVEL 4 - RESCATE VEHICULAR (ENFOQUE CIUDADANO)
+{ id: 61, nivel: 4, ambito: "Rescate Vehicular", escenario: "Presencias un choque en cadena en la ruta. ¿Cómo debes posicionar tu propio auto?", opciones: ["Detrás de los chocados para mirar", "Pasando el accidente, en la banquina y con balizas", "En el medio de la calzada para frenar el tránsito"], correcta: 1 },
+{ id: 62, nivel: 4, ambito: "Rescate Vehicular", escenario: "Te acercas a un auto accidentado. Hay una persona consciente atrapada. ¿Qué es lo primero que le pides?", opciones: ["Que intente salir por la ventana", "Que mantenga la calma y no mueva el cuello ni la espalda", "Que busque sus documentos"], correcta: 1 },
+{ id: 63, nivel: 4, ambito: "Rescate Vehicular", escenario: "Ves humo saliendo del motor de un auto chocado. No tienes extintor. ¿Qué haces?", opciones: ["Echarle arena o tierra", "Abrir el capot para ver de dónde viene", "Alejar a la gente y esperar a bomberos"], correcta: 2 },
+{ id: 64, nivel: 4, ambito: "Rescate Vehicular", escenario: "Una persona herida te pide agua desesperadamente tras el impacto. ¿Qué haces?", opciones: ["Le das un poco de agua fría", "No le das nada de beber ni comer", "Le das una bebida energética"], correcta: 1 },
+{ id: 65, nivel: 4, ambito: "Rescate Vehicular", escenario: "Llamas al número de emergencias. ¿Qué información es la más vital?", opciones: ["Tu nombre y apellido", "Ubicación exacta y cantidad de heridos", "El color de los autos chocados"], correcta: 1 },
+{ id: 66, nivel: 4, ambito: "Rescate Vehicular", escenario: "Un herido está en el suelo y no respira bien. Alguien sugiere levantarlo para llevarlo en un auto particular.", opciones: ["Ayudar a levantarlo", "Impedir que lo muevan (riesgo de lesión medular)", "Llevarlo rápido al hospital más cercano"], correcta: 1 },
+{ id: 67, nivel: 4, ambito: "Rescate Vehicular", escenario: "Ves que una víctima lleva casco (motociclista) y parece tener dificultad para respirar.", opciones: ["Quitarle el casco inmediatamente", "No quitarle el casco bajo ninguna circunstancia", "Aflojarle la ropa sin mover la cabeza"], correcta: 1 },
+{ id: 68, nivel: 4, ambito: "Rescate Vehicular", escenario: "Circulas por la ruta y ves balizas azules y rojas a lo lejos. ¿Qué debes hacer?", opciones: ["Frenar para sacar una foto", "Disminuir la velocidad y estar atento a indicaciones", "Tocar bocina para pasar rápido"], correcta: 1 },
+{ id: 70, nivel: 4, ambito: "Rescate Vehicular", escenario: "De noche en la ruta, ¿cómo señalizas un accidente si no tienes balizas triangulares?", opciones: ["Con la linterna del celular haciendo señas", "Caminando por la ruta hacia los autos que vienen", "Encendiendo las luces de tu auto apuntando al accidente"], correcta: 0 },
+{ id: 69, nivel: 4, ambito: "Rescate Vehicular", escenario: "Un auto chocado tiene el motor encendido pero el conductor está inconsciente. ¿Qué haces?", opciones: ["Intentar apagarlo desde afuera si es seguro", "Golpear el motor", "Esperar a que se acabe la nafta"], correcta: 0 }
   ];
   
   // --- VARIABLES DE ESTADO ---
