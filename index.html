@@ -195,6 +195,45 @@
         background: rgba(0,0,0,0.85); z-index: 5000; 
         align-items: center; justify-content: center; backdrop-filter: blur(10px);
     }
+
+    .modal-contenido-fire {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    border-bottom: 8px solid #d32f2f;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    position: relative;
+}
+.casco-container {
+    font-size: 50px;
+    margin-top: -60px;
+    background: white;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+.spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top: 4px solid #fff;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 </style>
 
 <div id="modal-nuevo-diseno">
@@ -306,7 +345,7 @@
 { id: 80, nivel: 5, ambito: "MatPel", escenario: "Ves un diamante de colores (Azul, Rojo, Amarillo, Blanco) en un tanque. ¿Qué indica el color Azul?", opciones: ["Riesgo de Incendio", "Riesgo a la Salud", "Reactividad"], correcta: 1 }
 ];
   
-  // --- VARIABLES DE ESTADO ---
+// --- VARIABLES DE ESTADO ---
 let nivelActual = parseInt(localStorage.getItem('nivelGuardado')) || 1;
 let puntosNivelActual = parseInt(localStorage.getItem('puntosNivelGuardado')) || 0;
 let indiceEnNivel = parseInt(localStorage.getItem('indiceGuardado')) || 0;
@@ -315,7 +354,6 @@ let vidas = 3;
 let tiempoRestante;
 let timerInterval;
 
-// Estructura de metas por nivel: 20 preguntas (2000 pts) o 10 (1000 pts)
 const metasNivel = { 1: 2000, 2: 2000, 3: 2000, 4: 1000, 5: 1000 };
 
 let ambitosCompletadosHoy = JSON.parse(localStorage.getItem('ambitosCompletados')) || {
@@ -334,16 +372,18 @@ const sonidoError = new Audio('https://actions.google.com/sounds/v1/impacts/cras
 const sonidoAcierto = new Audio('https://actions.google.com/sounds/v1/cartoon/clime_up_the_ladder.ogg');
 const sonidoAlarma = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
 
-// --- INICIO DE APP UNIFICADO ---
+// --- INICIO DE APP ---
 window.onload = () => {
     verificarBloqueo();
     mostrarConsejoAlEntrar();
     
     if (usuarioNombre) {
         document.getElementById('modal-registro').style.display = 'none';
-        // Si ya hay progreso, mostramos directamente el selector o el diploma si ya ganó
+        actualizarInterfaz(); // Sincroniza barra y puntos al cargar
+        
+        // Si ya superó el rango básico, activar visualmente la IA
         if (totalCompletados >= 80) {
-            mostrarDiplomaFinal();
+            prepararModoIAVisual();
         }
     }
 };
@@ -360,46 +400,20 @@ function guardarIdentidad() {
     localStorage.setItem('guardianNombre', usuarioNombre);
     localStorage.setItem('guardianOrg', usuarioOrganizacion);
     document.getElementById('modal-registro').style.display = 'none';
-    mostrarConsejoAlEntrar();
 }
 
-// --- PERSISTENCIA DE PROGRESO ---
 function guardarProgresoLocal() {
     localStorage.setItem('nivelGuardado', nivelActual);
     localStorage.setItem('puntosNivelGuardado', puntosNivelActual);
-    localStorage.setItem('indiceGuardado', indiceEnNivel);
     localStorage.setItem('puntosTotales', puntos);
     localStorage.setItem('ambitosCompletados', JSON.stringify(ambitosCompletadosHoy));
     localStorage.setItem('totalEscenariosSuperados', totalCompletados);
-    // Guardamos el índice específico de ESTE nivel
     localStorage.setItem(`indiceNivel_${nivelActual}`, indiceEnNivel);
-    localStorage.setItem('puntosTotales', puntos);
-    localStorage.setItem('ambitosCompletados', JSON.stringify(ambitosCompletadosHoy));
-    localStorage.setItem('totalEscenariosSuperados', totalCompletados);
 }
 
-
-
-function verificarBloqueo() {
-    const bloqueoHasta = localStorage.getItem('bloqueoEntrenamiento');
-    if (bloqueoHasta && new Date().getTime() < bloqueoHasta) {
-        const restante = Math.ceil((bloqueoHasta - new Date().getTime()) / (1000 * 60 * 60));
-        bloquearApp(`🚨 Entrenamiento suspendido. Vuelve en ${restante} horas para tu próxima guardia.`);
-    }
-}
-
-function bloquearApp(mensaje) {
-    document.body.innerHTML = `
-        <div style="height:100vh; background:#1a1a1a; color:white; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:20px; font-family: sans-serif;">
-            <h1>👨‍🚒 GUARDiÁN DE EMERGENCIAS</h1>
-            <p style="font-size:1.5rem; max-width: 600px;">${mensaje}</p>
-            <button onclick="localStorage.removeItem('bloqueoEntrenamiento'); location.reload();" style="padding:15px 30px; background:#e63946; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold; margin-top:20px;">REINTENTAR (DEBUG)</button>
-        </div>`;
-}
-
+// --- TEMPORIZADOR ---
 function iniciarTemporizador() { 
     clearInterval(timerInterval);
-    tiempoRestante = 30;
     document.getElementById("timer-display").innerText = `⏱️ ${tiempoRestante}s`;
     
     timerInterval = setInterval(() => {
@@ -413,50 +427,53 @@ function iniciarTemporizador() {
     }, 1000);
 }
 
-async function iniciarSimulacro() {
-    // 1. Iniciar el sonido de ambiente (Fuego)
-    // Usamos catch por si el archivo de audio falla o el link está roto
-    sonidoFuego.play().catch(e => console.log("El audio espera interacción"));
-    sonidoFuego.volume = 0.3; // Volumen suave de fondo
-
-    // 2. Escondemos la pantalla de logo
-    const inicio = document.getElementById('pantalla-inicio');
-    if (inicio) inicio.style.display = 'none';
+// --- FLUJO DE ESCENARIOS ---
+function seleccionarAmbito(num) {
+    if (ambitosCompletadosHoy[num] && totalCompletados < 80) {
+        alert("Este sector ya está asegurado. ¡Prueba con otro!");
+        return;
+    }
     
-    // 3. Mostramos el selector de niveles
-    const selector = document.getElementById('selector-niveles');
-    if (selector) selector.style.display = 'block';
+    nivelActual = num;
+    indiceEnNivel = parseInt(localStorage.getItem(`indiceNivel_${nivelActual}`)) || 0;
+    puntosNivelActual = indiceEnNivel * 100;
+
+    document.getElementById("txt-nivel").innerText = `Nivel ${num}: ${obtenerNombreAmbito(num)}`;
+    document.getElementById('selector-niveles').style.display = "none";
+    document.getElementById("simulador").style.display = "block";
+
+    cargarEscenario();
 }
 
-// --- FUNCIÓN CENTRAL DE CARGA ---
 async function cargarEscenario() {
     if (vidas <= 0) return;
 
-    // Filtramos las preguntas manuales que tenemos
-    const escenariosManuales = baseDeDatosEscenarios.filter(e => e.nivel === nivelActual);
-    
-    // Recuperamos en qué pregunta vamos de este nivel
-    indiceEnNivel = parseInt(localStorage.getItem(`indiceNivel_${nivelActual}`)) || 0;
-
-    // ¿Aún quedan preguntas manuales? (Menos de 20 para niveles 1-3 o menos de 10 para 4-5)
+    // Si ya completamos el cupo de preguntas manuales de este nivel o somos nivel experto
     let metaPreguntas = metasNivel[nivelActual] / 100;
+    const escenariosManuales = typeof baseDeDatosEscenarios !== 'undefined' 
+        ? baseDeDatosEscenarios.filter(e => e.nivel === nivelActual) 
+        : [];
 
-    if (indiceEnNivel < escenariosManuales.length && indiceEnNivel < metaPreguntas) {
-        // MODO MANUAL
-        let esc = escenariosManuales[indiceEnNivel];
-        renderizarEscenario(esc);
-    } else {
-        // MODO IA (Aquí es donde se quedaba trabado antes)
+    if (indiceEnNivel >= escenariosManuales.length || totalCompletados >= 80) {
         generarEscenarioIA(); 
+    } else {
+        renderizarEscenario(escenariosManuales[indiceEnNivel]);
     }
 }
 
 function renderizarEscenario(objetoEscenario) {
     const scenarioQuestion = document.getElementById("scenario-question");
-    const optionsContainer = document.getElementById("options-container");
+    const optionsContainer = document.getElementById("options-container"); // <-- ASEGÚRATE DE QUE ESTA LÍNEA ESTÉ
     const feedback = document.getElementById("feedback");
+    const btnSiguiente = document.getElementById("btn-siguiente");
+
+    if (!optionsContainer) {
+        console.error("No se encontró el elemento options-container en el HTML");
+        return;
+    }
 
     feedback.style.display = "none";
+    btnSiguiente.style.display = "none";
     scenarioQuestion.innerText = objetoEscenario.escenario;
     optionsContainer.innerHTML = "";
 
@@ -468,8 +485,15 @@ function renderizarEscenario(objetoEscenario) {
         optionsContainer.appendChild(btn);
     });
 
-    // Reiniciar y arrancar el temporizador
-    tiempoRestante = 30;
+    // Agregar botón de salida si es modo IA (total >= 80)
+    if (totalCompletados >= 80) {
+        const btnSalir = document.createElement("p");
+        btnSalir.innerHTML = "<br><span style='cursor:pointer; color:#888; text-decoration:underline; font-size:0.9em;'>⇠ Volver a sectores</span>";
+        btnSalir.onclick = volverAlMenu;
+        optionsContainer.appendChild(btnSalir);
+    }
+
+    tiempoRestante = totalCompletados >= 80 ? 45 : 30;
     iniciarTemporizador();
 }
 
@@ -477,85 +501,218 @@ async function verificarRespuesta(indexElegido, objetoEscenario) {
     clearInterval(timerInterval);
     const feedback = document.getElementById("feedback");
     const btnSiguiente = document.getElementById("btn-siguiente");
+    const botones = document.querySelectorAll(".btn-opcion");
+    
+    botones.forEach(b => b.disabled = true);
     feedback.style.display = "block";
 
-    const botones = document.querySelectorAll(".btn-opcion");
-    botones.forEach(b => b.disabled = true);
-
+    // --- CAMINO A: RESPUESTA CORRECTA ---
     if (indexElegido === objetoEscenario.correcta) {
-    sonidoAcierto.play();
-    
-    indiceEnNivel++;
-    localStorage.setItem(`indiceNivel_${nivelActual}`, indiceEnNivel);
-    puntos += 100;
-    puntosNivelActual = indiceEnNivel * 100;
-
-    feedback.innerText = "✅ ¡CORRECTO! +100 puntos.";
-    actualizarInterfaz();
-    
-    // Mostramos el botón de Siguiente pero también uno para salir
-    const btnSiguiente = document.getElementById("btn-siguiente");
-    btnSiguiente.style.display = "block";
-    btnSiguiente.innerText = "CONTINUAR IA";
-    btnSiguiente.onclick = siguientePregunta;
-
-    // Agregamos (o mostramos) un botón para cambiar de ámbito
-    // Puedes crear un div en tu HTML para esto o usar el mismo contenedor
-    feedback.innerHTML += `
-        <br><br>
-        <button class="main-btn" style="background:#555;" onclick="volverAlMenu()">CAMBIAR ÁMBITO</button>
-    `;
-
-       // Eliminamos el doble setTimeout y dejamos uno solo
-        setTimeout(siguientePregunta, 2000); 
-
-    } else {
-        sonidoError.play();
-        feedback.innerText = "⏳ El instructor está analizando tu error...";
-        feedback.style.color = "#d32f2f";
-        manejarError("Respuesta Incorrecta");
+        sonidoAcierto.play();
+        indiceEnNivel++;
+        puntos += 100;
         
-        try {
-            const respuesta = await fetch('https://guardiandeemergencias.pythonanywhere.com/analizar_error', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    error: objetoEscenario.opciones[indexElegido], 
-                    escenario: objetoEscenario.escenario 
-                })
-            });
-            const data = await respuesta.json();
-            feedback.innerHTML = `<div style="text-align:left; background: #ffebee; padding: 15px; border-left: 5px solid #d32f2f;">
-                                    <strong>👨‍🚒 EXPLICACIÓN TÉCNICA:</strong><br>${data.consejo}
-                                  </div>`;
-            
+        localStorage.setItem(`indiceNivel_${nivelActual}`, indiceEnNivel);
+        feedback.innerHTML = `<div style="color: #2e7d32; font-weight: bold; margin-bottom: 10px;">✅ ¡CORRECTO! +100 puntos.</div>`;
+        actualizarInterfaz();
+
+        const limites = { 1: 20, 2: 20, 3: 20, 4: 10, 5: 10 };
+
+        if (totalCompletados >= 80) {
             btnSiguiente.style.display = "block";
-            
-        } catch (e) {
-            feedback.innerText = "❌ No se pudo conectar con el instructor, pero la respuesta era incorrecta.";
+            btnSiguiente.innerText = "SIGUIENTE DESAFÍO IA 🤖";
+            btnSiguiente.onclick = siguientePregunta;
+        } 
+        else if (indiceEnNivel >= limites[nivelActual]) {
+            ambitosCompletadosHoy[nivelActual] = true;
+            localStorage.setItem('ambitosCompletados', JSON.stringify(ambitosCompletadosHoy));
+            feedback.innerHTML += `
+                <div style="background: #e8f5e9; padding: 15px; border: 2px solid #2e7d32; border-radius: 10px; margin-top: 10px;">
+                    <h3 style="color: #2e7d32; margin: 0;">🏆 ¡NIVEL ASEGURADO!</h3>
+                    <button class="main-btn" onclick="volverAlMenu()">VOLVER AL MENÚ</button>
+                </div>`;
+            btnSiguiente.style.display = "none";
+        } 
+        else {
             btnSiguiente.style.display = "block";
+            btnSiguiente.innerText = "SIGUIENTE ESCENARIO ➔";
+            btnSiguiente.onclick = siguientePregunta;
         }
+    } 
+    // --- CAMINO B: RESPUESTA INCORRECTA ---
+    else {
+        sonidoError.play();
+        manejarError("Incorrecto"); // Aquí resta vidas y actualiza UI
+        
+        feedback.innerHTML = `<div style="color: #d32f2f; font-weight: bold; margin-bottom: 10px;">❌ ACCIÓN INSEGURA</div>`;
+        feedback.innerHTML += `<div id="explicacion-ia" style="font-style: italic; color: #555; background: #ffeeee; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                                    🕵️ Analizando riesgos de tu decisión...
+                               </div>`;
+
+        fetch('https://guardiandeemergencias.pythonanywhere.com/analizar_error', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                error: objetoEscenario.opciones[indexElegido],
+                escenario: objetoEscenario.escenario 
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            const expBox = document.getElementById("explicacion-ia");
+            if(expBox) expBox.innerText = `⚠️ Peligro: ${data.consejo}`;
+        })
+        .catch(() => {
+            const expBox = document.getElementById("explicacion-ia");
+            if(expBox) expBox.innerText = "⚠️ Esa acción pone en riesgo la integridad del equipo y las víctimas.";
+        });
+
+        btnSiguiente.style.display = "block";
+        btnSiguiente.innerText = totalCompletados >= 80 ? "REINTENTAR DESAFÍO IA" : "CONTINUAR ENTRENAMIENTO";
+        btnSiguiente.onclick = siguientePregunta;
     }
+}
+
+async function generarEscenarioIA() {
+    const scenarioQuestion = document.getElementById("scenario-question");
+    const optionsContainer = document.getElementById("options-container");
+    
+    scenarioQuestion.innerText = "📡 Conectando con el Centro de Comando IA...";
+    optionsContainer.innerHTML = `
+        <div style="text-align:center;">
+            <div class="spinner"></div>
+            <p id="loading-msg">Generando escenario táctico...</p>
+        </div>`;
+
+    // Cambiar mensajes cada 3 segundos para que el usuario no se aburra
+    let mensajes = ["Analizando variables...", "Calculando riesgos...", "Sincronizando simulador..."];
+    let i = 0;
+    let intervaloMsg = setInterval(() => {
+        const msgElement = document.getElementById("loading-msg");
+        if(msgElement) msgElement.innerText = mensajes[i % mensajes.length];
+        i++;
+    }, 3000);
+
+    try {
+        const response = await fetch('https://guardiandeemergencias.pythonanywhere.com/generar_escenario', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nivel: nivelActual })
+        });
+
+        if (!response.ok) {
+            // Esto nos dirá si el error es del servidor (500, 404, etc.)
+            throw new Error(`Error del servidor: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (!data || !data.opciones) {
+            throw new Error("Respuesta de IA malformada");
+        }
+
+        let correctaTexto = data.opciones[data.correcta];
+        data.opciones.sort(() => Math.random() - 0.5);
+        data.correcta = data.opciones.indexOf(correctaTexto);
+
+        renderizarEscenario(data);
+    } catch (error) {
+        console.error("Detalle del error:", error);
+        scenarioQuestion.innerText = "❌ Fallo en la red de comando.";
+        optionsContainer.innerHTML = `
+            <p style="color:red;">${error.message}</p>
+            <button class="main-btn" onclick="generarEscenarioIA()">REINTENTAR CONEXIÓN</button>
+            <button class="main-btn" style="background:#666;" onclick="volverAlMenu()">VOLVER AL MENÚ</button>
+        `;
+    }
+}
+
+// 1. CORRECCIÓN DEL CONTADOR (Evita el error NaN)
+function actualizarInterfaz() {
+    let n1 = parseInt(localStorage.getItem('indiceNivel_1')) || 0;
+    let n2 = parseInt(localStorage.getItem('indiceNivel_2')) || 0;
+    let n3 = parseInt(localStorage.getItem('indiceNivel_3')) || 0;
+    let n4 = parseInt(localStorage.getItem('indiceNivel_4')) || 0;
+    let n5 = parseInt(localStorage.getItem('indiceNivel_5')) || 0;
+    
+    totalCompletados = n1 + n2 + n3 + n4 + n5;
+    localStorage.setItem('totalEscenariosSuperados', totalCompletados);
+
+    document.getElementById("txt-puntos").innerText = puntos;
+    
+    const progresoBarra = Math.min((totalCompletados / 80) * 100, 100);
+    const fill = document.getElementById("bar-fill");
+    if(fill) fill.style.width = progresoBarra + "%";
+
+    // --- CAMBIO AQUÍ: Solo mostrar diploma exactamente a los 80 ---
+    // Si ya tiene el diploma y sigue jugando (total > 80), no lo mostramos más.
+    if (totalCompletados === 80 && !localStorage.getItem('diplomaEntregado')) {
+        localStorage.setItem('diplomaEntregado', 'true');
+        mostrarDiplomaFinal();
+    }
+}
+
+// 2. CORRECCIÓN DEL DIPLOMA (Forzar visibilidad)
+function mostrarDiplomaFinal() {
+    console.log("🏆 ¡Meta alcanzada! Mostrando certificación.");
+    
+    // Ocultar todo lo demás
+    document.getElementById("simulador").style.display = "none";
+    document.getElementById("selector-niveles").style.display = "none";
+    
+    // Mostrar diploma y botón IA con prioridad alta
+    const cert = document.getElementById("pantalla-certificado");
+    const btnIA = document.getElementById("contenedor-boton-ia");
+    
+    cert.style.setProperty("display", "block", "important");
+    btnIA.style.setProperty("display", "block", "important");
+
+    // Llenar datos
+    document.getElementById("diploma-nombre").innerText = usuarioNombre.toUpperCase();
+    document.getElementById("diploma-org").innerText = usuarioOrganizacion.toUpperCase();
+    
+    const f = new Date();
+    const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    document.getElementById("diploma-fecha").innerText = `${f.getDate()} de ${meses[f.getMonth()]} de ${f.getFullYear()}`;
+    
+    sonidoAcierto.play();
+}
+
+function continuarEntrenamientoIA() {
+    document.getElementById("pantalla-certificado").style.display = "none";
+    document.getElementById("contenedor-boton-ia").style.display = "none";
+    document.getElementById("selector-niveles").style.display = "block";
+    prepararModoIAVisual();
+    alert("👨‍🚒 MODO IA ACTIVADO: Los escenarios ahora son dinámicos e infinitos.");
+}
+
+function prepararModoIAVisual() {
+    const botones = document.querySelectorAll('.info-card .main-btn');
+    botones.forEach(btn => {
+        btn.style.background = "#2196F3";
+        btn.innerText = "DESAFÍO IA 🤖";
+        btn.disabled = false;
+    });
 }
 
 function volverAlMenu() {
     clearInterval(timerInterval);
     document.getElementById("simulador").style.display = "none";
     document.getElementById("selector-niveles").style.display = "block";
+    if (totalCompletados >= 80) prepararModoIAVisual();
 }
 
-function manejarError(mensaje) {
-    sonidoError.play();
-    sonidoFuego.volume = 0.8; // El fuego ruge más fuerte ante el error
-    setTimeout(() => { sonidoFuego.volume = 0.3; }, 2000); // Luego vuelve a la normalidad
+function siguientePregunta() {
+    cargarEscenario();
+}
+
+function manejarError(msg) {
     vidas--;
     actualizarVidasUI();
     if (vidas <= 0) {
         const manana = new Date().getTime() + (24 * 60 * 60 * 1000);
         localStorage.setItem('bloqueoEntrenamiento', manana);
-        setTimeout(() => {
-            bloquearApp("⚠️ Demasiados errores. Sigue entrenando e inténtalo mañana.");
-        }, 1500);
+        bloquearApp("⚠️ Demasiados fallos críticos. Regresa mañana para reentrenar.");
     }
 }
 
@@ -564,296 +721,54 @@ function actualizarVidasUI() {
     if(display) display.innerText = "❤️".repeat(Math.max(0, vidas)) + "🖤".repeat(Math.max(0, 3 - vidas));
 }
 
-function deshabilitarBotonAmbito(num) {
-    const botones = document.querySelectorAll('.info-card .main-btn');
-    if (botones[num-1]) {
-        botones[num-1].disabled = true;
-        botones[num-1].innerText = "✅ COMPLETADO";
-        botones[num-1].style.background = "#444";
-    }
-}
-
-function actualizarInterfaz() {
-    document.getElementById("txt-puntos").innerText = puntos;
-    
-    // 1. RECALCULAR TOTAL COMPLETADOS
-    let totalReal = 0;
-    for (let i = 1; i <= 5; i++) {
-        totalReal += parseInt(localStorage.getItem(`indiceNivel_${i}`)) || 0;
-    }
-    totalCompletados = totalReal;
-
-    // 2. ACTUALIZAR BARRA DE PROGRESO
-    const progresoBarra = Math.min((totalCompletados / 80) * 100, 100);
-    const fill = document.getElementById("bar-fill");
-    if(fill) fill.style.width = progresoBarra + "%";
-
-    // 3. LÓGICA DE CIERRE DE ÁMBITO (Modificada para IA)
-    let metaActual = metasNivel[nivelActual];
-    
-    // Si estamos en Nivel IA (totalCompletados >= 80), NO cerramos el nivel por puntos
-    if (totalCompletados >= 80) {
-        // En modo IA solo guardamos progreso, no interrumpimos el flujo
-        guardarProgresoLocal();
-        return; 
-    }
-
-    // Lógica normal para niveles manuales
-    if (puntosNivelActual >= metaActual && !ambitosCompletadosHoy[nivelActual]) {
-        ambitosCompletadosHoy[nivelActual] = true;
-        guardarProgresoLocal();
-        clearInterval(timerInterval);
-        deshabilitarBotonAmbito(nivelActual);
-
-        alert(`✅ ¡Excelente! Has asegurado totalmente el área de ${obtenerNombreAmbito(nivelActual)}.`);
-
-        if (totalCompletados >= 80) {
-            mostrarDiplomaFinal();
-        } else {
-            document.getElementById("simulador").style.display = "none";
-            document.getElementById("selector-niveles").style.display = "block";
-        }
-    }
-}
-
-function mostrarDiplomaFinal() {
-    // Ocultamos todo lo demás
-    ["simulador", "selector-niveles", "banner-comercial", "pantalla-inicio", "modal-nuevo-diseno"].forEach(id => {
-        const el = document.getElementById(id);
-        if(el) el.style.display = "none";
-    });
-
-    // Mostramos el diploma
-    document.getElementById("pantalla-certificado").style.display = "block";
-    
-    // MOSTRAMOS EL BOTÓN AFUERA
-    document.getElementById("contenedor-boton-ia").style.display = "block";
-
-    // Datos del diploma
-    document.getElementById("diploma-nombre").innerText = usuarioNombre.toUpperCase();
-    document.getElementById("diploma-org").innerText = usuarioOrganizacion.toUpperCase();
-    const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-    const f = new Date();
-    document.getElementById("diploma-fecha").innerText = `${f.getDate()} de ${meses[f.getMonth()]} de ${f.getFullYear()}`;
-    
-    sonidoAcierto.play();
-}
-
-function imprimirCertificado() {
-    // Guardamos el título original
-    const originalTitle = document.title;
-    document.title = `Certificado_Guardian_${usuarioNombre.replace(/ /g, '_')}`;
-    
-    // Mandamos a imprimir (el navegador permite guardar como PDF)
-    window.print();
-    
-    // Restauramos el título
-    document.title = originalTitle;
-}
-
-function mostrarDiplomaAvanzado() {
-    const pantallaCert = document.getElementById("pantalla-certificado");
-    
-    // Cambiamos el texto del diploma existente para que refleje el nivel Avanzado
-    document.querySelector("#pantalla-certificado h1").innerText = "📜 CERTIFICACIÓN AVANZADA IA";
-    document.querySelector("#pantalla-certificado p").innerHTML = "Se certifica que el Guardián ha superado los <b>Desafíos Dinámicos de Inteligencia Artificial</b>.";
-    
-    // Cambiamos el botón de acción
-    const btnSeguir = document.querySelector("#pantalla-certificado .main-btn[onclick*='continuar']");
-    if(btnSeguir) {
-        btnSeguir.innerText = "🏆 MODO EXPERTO INFINITO";
-        btnSeguir.onclick = () => {
-             document.getElementById("pantalla-certificado").style.display = "none";
-             document.getElementById("selector-niveles").style.display = "block";
-             alert("👨‍🚒 HAS LLEGADO AL RANGO MÁXIMO. El simulador ahora operará en modo de alta complejidad sin límites.");
-        };
-    }
-
-    pantallaCert.style.display = "block";
-    document.getElementById("simulador").style.display = "none";
-}
-
-function continuarEntrenamientoIA() {
-    document.getElementById("pantalla-certificado").style.display = "none";
-    document.getElementById("contenedor-boton-ia").style.display = "none";
-    
-    for (let i = 1; i <= 5; i++) {
-        ambitosCompletadosHoy[i] = false;
-        // Establecemos el mínimo para que totalCompletados sea 80
-        // Nivel 1, 2, 3 = 20 c/u (60) | Nivel 4, 5 = 10 c/u (20) | Total = 80
-        let metaBase = (i <= 3) ? 20 : 10;
-        localStorage.setItem(`indiceNivel_${i}`, metaBase); 
-    }
-    
-    totalCompletados = 80; // Forzamos el estado avanzado
-    localStorage.setItem('totalEscenariosSuperados', 80);
-
-    document.getElementById("selector-niveles").style.display = "block";
-    
-    const botones = document.querySelectorAll('.info-card .main-btn');
-    botones.forEach(btn => {
-        btn.disabled = false;
-        btn.style.background = "#2196F3";
-        btn.innerText = "DESAFÍO IA";
-    });
-
-    alert("👨‍🚒 ¡MODO IA ACTIVADO! Los niveles ahora son infinitos y dinámicos.");
-}
-
-async function generarEscenarioIA() {
-    const scenarioQuestion = document.getElementById("scenario-question");
-    const optionsContainer = document.getElementById("options-container");
-    
-    // 1. Mostrar estado de carga
-    scenarioQuestion.innerText = "🚨 La IA está analizando un nuevo reporte de emergencia...";
-    optionsContainer.innerHTML = `<div style="text-align:center; padding:20px;">
-        <div class="spinner"></div> <p>Estableciendo conexión con el centro de comando...</p>
-    </div>`;
-
-    try {
-        // 2. Llamada a tu servidor (Asegúrate que la URL sea correcta)
-        const response = await fetch('https://guardiandeemergencias.pythonanywhere.com/generar_escenario', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                nivel: nivelActual,
-                puntos: puntos 
-            })
-        });
-
-        if (!response.ok) throw new Error("Error en red");
-
-        const data = await response.json();
-
-       // Lógica para mezclar las opciones y que la correcta cambie de lugar
-       let opcionesOriginales = [...data.opciones];
-       let respuestaCorrectaTexto = opcionesOriginales[data.correcta];
-
-       // Mezclamos el array de opciones
-       data.opciones.sort(() => Math.random() - 0.5);
-
-       // Buscamos dónde quedó la respuesta correcta ahora
-       data.correcta = data.opciones.indexOf(respuestaCorrectaTexto);
-
-      // Ahora sí, renderizamos
-      renderizarEscenario(data);
-        
-        // Sobreescribimos el tiempo solo para este caso
-        clearInterval(timerInterval); 
-        tiempoRestante = 45; // Damos 1 minuto para leer
-        iniciarTemporizador();
-
-    } catch (error) {
-        console.error("Error IA:", error);
-        scenarioQuestion.innerText = "❌ Error de conexión con la central.";
-        optionsContainer.innerHTML = `
-            <p>No se pudo obtener un escenario de la IA. Verifica tu conexión.</p>
-            <button class="main-btn" onclick="seleccionarAmbito(nivelActual)">REINTENTAR</button>
-        `;
-    }
-}
-
-function verificarHitosCertificacion() {
-    // CERTIFICADO BÁSICO: Al completar los 5 niveles manuales
-    if (totalCompletados === 50) { 
-        ofrecerCertificado("Básico");
-    }
-
-    // CERTIFICADO AVANZADO: Por ejemplo, al llegar a 100 preguntas superadas (IA)
-    if (totalCompletados >= 100) {
-        ofrecerCertificado("Avanzado");
-    }
-}
-
-function ofrecerCertificado(nivel) {
-    alert(`🎉 ¡EXCELENTE DESEMPEÑO! Has desbloqueado el Certificado Nivel ${nivel}.`);
-    // Aquí llamarías a tu función de PDF existente pasando el nivel
-    generarPDFCertificado(nivel); 
-}
-
-// Función auxiliar para nombres limpios
 function obtenerNombreAmbito(num) {
-    const nombres = ["", "Hogar", "Escuela", "Empresa", "Rescate Vehicular", "MatPel"];
-    return nombres[num];
-}
-
-function siguientePregunta() {
-    document.getElementById("btn-siguiente").style.display = "none";
-    document.getElementById("feedback").style.display = "none";
-
-    if (vidas > 0) {
-        // Si ya superó las 20 preguntas (2000 pts) o 10 (1000 pts), 
-        // pero totalCompletados >= 80, significa que está en modo IA libre.
-        if (totalCompletados >= 80) {
-            generarEscenarioIA();
-        } else {
-            let metaActual = metasNivel[nivelActual];
-            if (puntosNivelActual < metaActual) {
-                cargarEscenario();
-            } else {
-                // Si llegó a la meta del nivel manual, vuelve al selector
-                actualizarInterfaz();
-                document.getElementById("simulador").style.display = "none";
-                document.getElementById("selector-niveles").style.display = "block";
-            }
-        }
-    }
+    return ["", "Hogar", "Escuela", "Empresa", "Rescate Vehicular", "MatPel"][num];
 }
 
 async function mostrarConsejoAlEntrar() {
+    const textoBox = document.getElementById('texto-consejo-ia');
+    // Ponemos un mensaje de carga momentáneo
+    textoBox.innerText = "Recibiendo instrucciones del comando...";
+
     try {
-        const respuesta = await fetch('https://guardiandeemergencias.pythonanywhere.com/consejo_diario');
-        const data = await respuesta.json();
-        document.getElementById('texto-consejo-ia').innerText = '"' + data.consejo + '"';
-    } catch (error) {
-        document.getElementById('texto-consejo-ia').innerText = "La prevención es la mejor herramienta.";
+        const res = await fetch('https://guardiandeemergencias.pythonanywhere.com/consejo_diario');
+        if (!res.ok) throw new Error("Error en servidor");
+        
+        const data = await res.json();
+        
+        if (data && data.consejo) {
+            textoBox.innerText = `"${data.consejo}"`;
+        } else {
+            textoBox.innerText = "La seguridad es una decisión diaria.";
+        }
+    } catch (e) {
+        console.log("Usando respaldo por delay de red.");
+        textoBox.innerText = "La seguridad es una decisión diaria.";
     }
 }
 
-      function cerrarConsejoYMostrarInicio() {
-    const modal = document.getElementById('modal-nuevo-diseno');
-    if (modal) modal.style.display = 'none';
-
-    const inicio = document.getElementById('pantalla-inicio');
-    if (inicio) inicio.style.display = 'flex';
-
-    // Intento de reproducción con pequeño retraso
-    setTimeout(() => {
-        sonidoFuego.play().then(() => {
-            console.log("🔥 Fuego iniciado con éxito");
-        }).catch(err => {
-            console.log("El navegador aún bloquea el audio. Sonará al dar clic en COMENZAR.");
-        });
-    }, 100);
+function cerrarConsejoYMostrarInicio() {
+    document.getElementById('modal-nuevo-diseno').style.display = 'none';
+    document.getElementById('pantalla-inicio').style.display = 'flex';
 }
 
-function seleccionarAmbito(num) {
-    if (ambitosCompletadosHoy[num]) {
-        alert("Este sector ya ha sido totalmente asegurado.");
-        return;
+function iniciarSimulacro() {
+    sonidoFuego.play().catch(() => {});
+    document.getElementById('pantalla-inicio').style.display = 'none';
+    document.getElementById('selector-niveles').style.display = 'block';
+}
+
+function verificarBloqueo() {
+    const bloqueo = localStorage.getItem('bloqueoEntrenamiento');
+    if (bloqueo && new Date().getTime() < bloqueo) {
+        bloquearApp("🚨 Guardia suspendida por hoy. Prioriza el estudio de protocolos.");
     }
-    
-    nivelActual = num;
-    
-    // Cargamos el índice que quedó guardado en la última sesión para este nivel
-    indiceEnNivel = parseInt(localStorage.getItem(`indiceNivel_${nivelActual}`)) || 0;
-    
-    // Sincronizamos los puntos del nivel actual (100 puntos por cada pregunta superada)
-    puntosNivelActual = indiceEnNivel * 100;
-
-    document.getElementById("txt-nivel").innerText = `Nivel ${num}: ${obtenerNombreAmbito(num)}`;
-    document.getElementById('selector-niveles').style.display = "none";
-    document.getElementById("simulador").style.display = "block";
-
-    cargarEscenario();
 }
 
-// Función auxiliar para que el alert de victoria use el nombre correcto
-function obtenerNombreAmbito(num) {
-    const nombres = ["", "Hogar", "Escuela", "Empresa", "Rescate Vehicular", "MatPel"];
-    return nombres[num];
+function bloquearApp(msg) {
+    document.body.innerHTML = `<div style="height:100vh; background:#111; color:white; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:20px; font-family:sans-serif;">
+        <h1>👨‍🚒 ACADEMIA DE BOMBEROS</h1><p style="font-size:1.5rem;">${msg}</p></div>`;
 }
-
 </script>
 
 <div id="banner-comercial" style="background: linear-gradient(90deg, #1a1a1a, #2c3e50); border: 2px solid #e74c3c; border-radius: 10px; padding: 20px; margin: 30px auto; max-width: 600px; text-align: center; color: white; font-family: sans-serif;">
@@ -873,4 +788,4 @@ function obtenerNombreAmbito(num) {
         <p style="font-size: 0.7em; color: #555;">Desarrollado con Inteligencia Artificial aplicada a la Seguridad Civil.</p>
     </footer>
 </body>
-</html>  
+</html>
